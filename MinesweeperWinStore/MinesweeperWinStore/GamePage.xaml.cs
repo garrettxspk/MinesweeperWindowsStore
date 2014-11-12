@@ -31,9 +31,9 @@ namespace MinesweeperWinStore
         private const char MINE = 'M';
         
         private bool gameOver;
-        private int gameBoardWidth;
-        private int gameBoardHeight;
-        private int numOfMines;
+        private int gameBoardWidth = 8;
+        private int gameBoardHeight = 8;
+        private int numOfMines = 10;
         private char[,] gameBoard;
 
         /// <summary>
@@ -54,15 +54,16 @@ namespace MinesweeperWinStore
         }
 
 
-        public GamePage(int boardWidth, int boardHeight, int numberMines)
+        //public GamePage(int boardWidth, int boardHeight, int numberMines)
+        public GamePage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
             this.navigationHelper.SaveState += navigationHelper_SaveState;
-            gameBoardHeight = boardHeight;
+            /*gameBoardHeight = boardHeight;
             gameBoardWidth = boardWidth;
-            numOfMines = numberMines;
+            numOfMines = numberMines;*/
             gameBoard = new char[gameBoardWidth, gameBoardHeight];
 
             GenerateGameBoard();
@@ -77,22 +78,29 @@ namespace MinesweeperWinStore
             double mineDensityDecimal = (double)numOfMines / (double)(gameBoardWidth * gameBoardHeight);
             int mineDensity = (int)(mineDensityDecimal * 100);
             //int mineDensity = (int)(((double)((gameBoardWidth * gameBoardHeight) / numOfMines)) * 100);
+            bool allMinesPlaced = false;
+
             while (numberOfMinesPlaced != numOfMines)
             {
-                for(int r = 0; r < gameBoardHeight && numberOfMinesPlaced <= numOfMines; r++)
-                    for (int c = 0; c < gameBoardWidth && numberOfMinesPlaced <= numOfMines; c++)
+                for(int r = 0; r < gameBoardHeight && !allMinesPlaced; r++)
+                    for (int c = 0; c < gameBoardWidth && !allMinesPlaced; c++)
                     {
-                        int minePlacement = random.Next(1, 101);
-                        if (minePlacement <= mineDensity)
+                        if (numberOfMinesPlaced == numOfMines)
+                            allMinesPlaced = true;
+                        else
                         {
-                            gameBoard[r, c] = MINE;
-                            numberOfMinesPlaced++;
+                            int minePlacement = random.Next(1, 101);
+                            if (minePlacement <= mineDensity)
+                            {
+                                gameBoard[r, c] = MINE;
+                                numberOfMinesPlaced++;
+                            }
                         }
                     }
             }
 
             for (int r = 0; r < gameBoardHeight; r++)
-                for (int c = 0; r < gameBoardWidth; c++)
+                for (int c = 0; c < gameBoardWidth; c++)
                 {
                     int numberOfNeighborMines = 0;
                     if (gameBoard[r, c] != MINE)
@@ -101,25 +109,30 @@ namespace MinesweeperWinStore
                         for (int neighborR = -1; neighborR < 2; neighborR++)
                             for (int neighborC = -1; neighborC < 2; neighborC++)
                             {
-                                if (gameBoard[r + neighborR, c + neighborC] == MINE)
-                                {
-                                    numberOfNeighborMines++;
-                                }
+                                int rowToCheck = r + neighborR;
+                                int colToCheck = c + neighborC;
+
+                                if (rowToCheck >= 0 && rowToCheck < gameBoardHeight && colToCheck >= 0 && colToCheck < gameBoardWidth)
+                                    if (gameBoard[r + neighborR, c + neighborC] == MINE)
+                                    {
+                                        numberOfNeighborMines++;
+                                    }
                             }
 
-                        gameBoard[r, c] = Convert.ToChar(numberOfNeighborMines);
+                        gameBoard[r, c] = numberOfNeighborMines.ToString()[0];
                     }
                 }
+            PrintGameBoard();
         }
 
         private void PrintGameBoard()
         {
             // Create sample file; replace if exists.
             string board = "";
-            for (int r = -1; r < 2; r++)
+            for (int r = 0; r < gameBoardHeight; r++)
             {
                 string row = "";
-                for (int c = -1; c < 2; c++)
+                for (int c = 0; c < gameBoardWidth; c++)
                 {
                     row += gameBoard[r, c];
                     row += " | ";

@@ -29,7 +29,7 @@ namespace MinesweeperWinStore
 
         private void beginnerRdoBtn_Click(object sender, RoutedEventArgs e)
         {
-            GamePage gamePage = new GamePage(8, 8, 10);
+            //GamePage gamePage = new GamePage(8, 8, 10);
             this.Frame.Navigate(typeof(GamePage));
         }
     }
