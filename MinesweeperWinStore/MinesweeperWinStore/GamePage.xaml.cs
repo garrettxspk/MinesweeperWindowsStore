@@ -32,12 +32,14 @@ namespace MinesweeperWinStore
         private BoardConfiguration boardConfig;
 
         private const char MINE = 'M';
+        private const char NO_NEIGHBORS = '0';
+        private const int IMAGE_SIZE = 66;
         
         private bool gameOver;
         private int gameBoardWidth;
         private int gameBoardHeight;
         private int numOfMines;
-        private char[,] gameBoard;
+        private Cell[,] gameBoard;
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
@@ -64,15 +66,16 @@ namespace MinesweeperWinStore
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
             this.navigationHelper.SaveState += navigationHelper_SaveState;
-            /*gameBoardHeight = boardHeight;
-            gameBoardWidth = boardWidth;
-            numOfMines = numberMines;*/
-            //gameBoard = new char[gameBoardWidth, gameBoardHeight];
-
-            //GenerateGameBoard();
         }
 
-
+        private void FillGameBoard()
+        {
+            for(int r = 0; r < gameBoardHeight; r++)
+                for (int c = 0; c < gameBoardWidth; c++)
+                {
+                    gameBoard[r, c] = new Cell('0', false);
+                }
+        }
 
         private void GenerateGameBoard()
         {
@@ -80,7 +83,6 @@ namespace MinesweeperWinStore
             Random random = new Random();
             double mineDensityDecimal = (double)numOfMines / (double)(gameBoardWidth * gameBoardHeight);
             int mineDensity = (int)(mineDensityDecimal * 100);
-            //int mineDensity = (int)(((double)((gameBoardWidth * gameBoardHeight) / numOfMines)) * 100);
             bool allMinesPlaced = false;
 
             while (numberOfMinesPlaced != numOfMines)
@@ -95,7 +97,7 @@ namespace MinesweeperWinStore
                             int minePlacement = random.Next(1, 101);
                             if (minePlacement <= mineDensity)
                             {
-                                gameBoard[r, c] = MINE;
+                                gameBoard[r, c].CellType = MINE;
                                 numberOfMinesPlaced++;
                             }
                         }
@@ -106,7 +108,7 @@ namespace MinesweeperWinStore
                 for (int c = 0; c < gameBoardWidth; c++)
                 {
                     int numberOfNeighborMines = 0;
-                    if (gameBoard[r, c] != MINE)
+                    if (gameBoard[r, c].CellType != MINE)
                     {
                         //examine neighbors for number of mines
                         for (int neighborR = -1; neighborR < 2; neighborR++)
@@ -116,13 +118,13 @@ namespace MinesweeperWinStore
                                 int colToCheck = c + neighborC;
 
                                 if (rowToCheck >= 0 && rowToCheck < gameBoardHeight && colToCheck >= 0 && colToCheck < gameBoardWidth)
-                                    if (gameBoard[r + neighborR, c + neighborC] == MINE)
+                                    if (gameBoard[r + neighborR, c + neighborC].CellType == MINE)
                                     {
                                         numberOfNeighborMines++;
                                     }
                             }
 
-                        gameBoard[r, c] = numberOfNeighborMines.ToString()[0];
+                        gameBoard[r, c].CellType = numberOfNeighborMines.ToString()[0];
                     }
                 }
             PrintGameBoard();
@@ -130,33 +132,66 @@ namespace MinesweeperWinStore
 
         private void PrintGameBoard()
         {
-            // Create sample file; replace if exists.
-            //string board = "";
-            //for (int r = 0; r < gameBoardHeight; r++)
-            //{
-            //    string row = "";
-            //    for (int c = 0; c < gameBoardWidth; c++)
-            //    {
-            //        row += gameBoard[r, c];
-            //        row += " | ";
-            //    }
-            //    board += row;
-            //    board += "\n";
-            //}
-            //testBoardPrint.Text = board;
+            Rect bounds = Window.Current.Bounds;
+            double appHeight = bounds.Height;
+            double appWidth = bounds.Width;
+
+            gameBoardGrid.MaxHeight = (.8 * (appHeight - 140));
+            gameBoardGrid.MaxWidth = (.9 * appWidth);
+
+            double totalHeight = gameBoardHeight * IMAGE_SIZE;
+            double totalWidth = gameBoardWidth * IMAGE_SIZE;
+            double heightOvershoot = totalHeight - gameBoardGrid.MaxHeight;
+            double widthOvershoot = totalWidth - gameBoardGrid.MaxWidth;
+
+            GridLength newImageDimension;
+            bool auto = true;
+
+            if (totalHeight > gameBoardGrid.MaxHeight && totalWidth > gameBoardGrid.MaxWidth)
+            {
+                if (widthOvershoot > heightOvershoot)
+                    newImageDimension = new GridLength(Math.Floor(gameBoardGrid.MaxWidth / gameBoardWidth));     
+                else
+                    newImageDimension = new GridLength(Math.Floor(gameBoardGrid.MaxHeight / gameBoardHeight));
+                auto = false;
+            }
+            else if (totalHeight > gameBoardGrid.MaxHeight)
+            {
+                newImageDimension = new GridLength(Math.Floor(gameBoardGrid.MaxHeight / gameBoardHeight));
+                auto = false;
+            }
+            else if (totalWidth > gameBoardGrid.MaxWidth)
+            {
+                newImageDimension = new GridLength(Math.Floor(gameBoardGrid.MaxWidth / gameBoardWidth));
+                auto = false;
+            }
+
+            GridLength colGridlength;
+            if (!auto)
+                colGridlength = newImageDimension;
+            else
+                colGridlength = GridLength.Auto;
 
             for (int i = 0; i < gameBoardWidth; i++)
             {
                 ColumnDefinition col = new ColumnDefinition();
-                col.Width = GridLength.Auto;
+                col.Width = colGridlength;
                 gameBoardGrid.ColumnDefinitions.Add(col);
             }
+
+            GridLength rowGridLength;
+            if (!auto)
+                rowGridLength = newImageDimension;
+            else
+                rowGridLength = GridLength.Auto;
+
             for (int j = 0; j < gameBoardHeight; j++)
             {
                 RowDefinition row = new RowDefinition();
-                row.Height = GridLength.Auto;
+                row.Height = rowGridLength;
                 gameBoardGrid.RowDefinitions.Add(row);
             }
+
             for (int r = 0; r < gameBoardHeight; r++)
                 for (int c = 0; c < gameBoardWidth; c++)
                 {
@@ -173,9 +208,43 @@ namespace MinesweeperWinStore
         {
             int row = Grid.GetRow((Image)sender);
             int col = Grid.GetColumn((Image)sender);
-            Windows.UI.Popups.MessageDialog msg = new Windows.UI.Popups.MessageDialog(row.ToString() + " " + col.ToString());
-            ((Image)sender).Source = new BitmapImage(new Uri("ms-appx:///images/secondImg.jpg", UriKind.Absolute));
-            msg.ShowAsync();
+            
+            if (!gameOver && !gameBoard[row, col].IsReaveled)
+            {
+                revealCell(row, col);
+            }
+        }
+
+        private void revealCell(int row, int col)
+        {
+            string newSource;
+            if (gameBoard[row, col].CellType != MINE)
+            {
+                newSource = "ms-appx:///images/" + gameBoard[row, col].CellType + "Neighbor.jpg";
+            }
+            else
+                newSource = "ms-appx:///images/secondImg.jpg";
+
+            Image thisCellImage = gameBoardGrid.Children[row * gameBoardWidth + col] as Image;
+            (thisCellImage).Source = new BitmapImage(new Uri(newSource, UriKind.Absolute));
+            gameBoard[row, col].IsReaveled = true;
+
+            if (gameBoard[row, col].CellType == NO_NEIGHBORS)
+            {
+                for (int neighborR = -1; neighborR < 2; neighborR++)
+                    for (int neighborC = -1; neighborC < 2; neighborC++)
+                    {
+                        int rowToCheck = row + neighborR;
+                        int colToCheck = col + neighborC;
+
+                        if (rowToCheck >= 0 && rowToCheck < gameBoardHeight && colToCheck >= 0 && colToCheck < gameBoardWidth)
+                            if ((gameBoard[row + neighborR, col + neighborC].CellType != MINE) && (gameBoard[row + neighborR, col + neighborC].IsReaveled == false))
+                            {
+                                //Image thisCellImage = gameBoardGrid.Children[rowToCheck * gameBoardWidth + colToCheck] as Image;
+                                revealCell(rowToCheck, colToCheck);
+                            }
+                    }
+            }
         }
 
         /// <summary>
@@ -194,8 +263,10 @@ namespace MinesweeperWinStore
             gameBoardHeight = boardConfig.Height;
             gameBoardWidth = boardConfig.Width;
             numOfMines = boardConfig.NumberOfMines;
-            gameBoard = new char[gameBoardHeight, gameBoardWidth];
+            gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
 
+            gameOver = false;
+            FillGameBoard();
             GenerateGameBoard();
         }
 
@@ -209,6 +280,7 @@ namespace MinesweeperWinStore
         /// serializable state.</param>
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
+
         }
 
         #region NavigationHelper registration

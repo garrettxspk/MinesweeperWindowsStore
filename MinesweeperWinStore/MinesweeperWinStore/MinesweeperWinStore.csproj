@@ -112,6 +112,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="BoardConfiguration.cs" />
+    <Compile Include="Cell.cs" />
     <Compile Include="Common\NavigationHelper.cs" />
     <Compile Include="Common\ObservableDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
@@ -136,6 +137,10 @@
     <Content Include="Assets\SplashScreen.scale-100.png" />
     <Content Include="Assets\StoreLogo.scale-100.png" />
     <Content Include="Common\ReadMe.txt" />
+    <Content Include="images\0Neighbor.jpg" />
+    <Content Include="images\1Neighbor.jpg" />
+    <Content Include="images\2Neighbor.jpg" />
+    <Content Include="images\3Neighbor.jpg" />
     <Content Include="images\mineTest.jpg" />
     <Content Include="images\secondImg.jpg" />
   </ItemGroup>
