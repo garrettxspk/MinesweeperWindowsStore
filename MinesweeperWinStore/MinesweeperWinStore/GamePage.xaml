@@ -46,6 +46,9 @@
             <TextBlock x:Name="pageTitle" Text="{StaticResource PageName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
         </Grid>
-        <TextBlock x:Name="testBoardPrint" HorizontalAlignment="Left" Margin="231,148,0,0" Grid.Row="1" TextWrapping="Wrap" Text="TEST" VerticalAlignment="Top" Height="370" Width="872" FontSize="16"/>
+        <Grid x:Name="gameBoardGrid" HorizontalAlignment="Center" Margin="0" Grid.Row="1" VerticalAlignment="Center">
+            
+        </Grid>
+
     </Grid>
 </Page>

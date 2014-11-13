@@ -45,13 +45,24 @@
                 <TextBlock TextWrapping="Wrap" Text="Start a Game" FontSize="36" HorizontalAlignment="Center"/>
             </Border>
             <StackPanel HorizontalAlignment="Center" Margin="0,35,0,0" Width="140" >
-                <Button x:Name="beginnerRdoBtn" Content="Beginner" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="130" Click="beginnerRdoBtn_Click"/>
-                <Button x:Name="intermediateRdoBtn" Content="Intermediate" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="130"/>
-                <Button x:Name="ExpertRdoBtn" Content="Expert" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="130"/>
-                <Button x:Name="customRdoBtn" Content="Custom..." VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="130"/>
-                <Button x:Name="viewHighScoresBtn" Content="High Scores" HorizontalAlignment="Center" Width="130" Margin="0,50,0,0"/>
+                <RadioButton x:Name="beginnerRdoBtn" Content="Beginner" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="130" IsChecked="True" Click="beginnerRdoBtn_Click"/>
+                <RadioButton x:Name="intermediateRdoBtn" Content="Intermediate" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="130" Click="intermediateRdoBtn_Click"/>
+                <RadioButton x:Name="ExpertRdoBtn" Content="Expert" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="130" Click="ExpertRdoBtn_Click"/>
+                <RadioButton x:Name="customRdoBtn" Content="Custom" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="130" Click="customRdoBtn_Click"/>
             </StackPanel>
-                
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,25,0,0">
+                <TextBlock Text="Height:" FontSize="16" VerticalAlignment="Center" Margin="20,0,10,0"/>
+                <ComboBox x:Name="heightComboBox" IsEnabled="False" SelectionChanged="heightComboBox_SelectionChanged">
+                </ComboBox>
+                <TextBlock Text="Width: " FontSize="16" VerticalAlignment="Center" Margin="20,0,10,0"/>
+                <ComboBox x:Name="widthComboBox" IsEnabled="False" SelectionChanged="widthComboBox_SelectionChanged">
+                </ComboBox>
+                <TextBlock Text="Number Of Mines: " FontSize="16" VerticalAlignment="Center" Margin="20,0,10,0"/>
+                <ComboBox x:Name="minesComboBox" IsEnabled="False">
+                </ComboBox>
+            </StackPanel>
+            <Button x:Name="startGameBtn" Content="Start Game" HorizontalAlignment="Center" Width="130" Margin="0,50,0,0" Click="startGameBtn_Click"/>
+            <Button x:Name="viewHighScoresBtn" Content="High Scores" HorizontalAlignment="Center" Width="130" Margin="0,50,0,0"/>
         </StackPanel>
     </Grid>
 </Page>

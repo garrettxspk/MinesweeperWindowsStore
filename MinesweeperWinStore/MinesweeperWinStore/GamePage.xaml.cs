@@ -13,6 +13,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
@@ -28,12 +29,14 @@ namespace MinesweeperWinStore
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
         
+        private BoardConfiguration boardConfig;
+
         private const char MINE = 'M';
         
         private bool gameOver;
-        private int gameBoardWidth = 8;
-        private int gameBoardHeight = 8;
-        private int numOfMines = 10;
+        private int gameBoardWidth;
+        private int gameBoardHeight;
+        private int numOfMines;
         private char[,] gameBoard;
 
         /// <summary>
@@ -64,9 +67,9 @@ namespace MinesweeperWinStore
             /*gameBoardHeight = boardHeight;
             gameBoardWidth = boardWidth;
             numOfMines = numberMines;*/
-            gameBoard = new char[gameBoardWidth, gameBoardHeight];
+            //gameBoard = new char[gameBoardWidth, gameBoardHeight];
 
-            GenerateGameBoard();
+            //GenerateGameBoard();
         }
 
 
@@ -128,19 +131,51 @@ namespace MinesweeperWinStore
         private void PrintGameBoard()
         {
             // Create sample file; replace if exists.
-            string board = "";
-            for (int r = 0; r < gameBoardHeight; r++)
+            //string board = "";
+            //for (int r = 0; r < gameBoardHeight; r++)
+            //{
+            //    string row = "";
+            //    for (int c = 0; c < gameBoardWidth; c++)
+            //    {
+            //        row += gameBoard[r, c];
+            //        row += " | ";
+            //    }
+            //    board += row;
+            //    board += "\n";
+            //}
+            //testBoardPrint.Text = board;
+
+            for (int i = 0; i < gameBoardWidth; i++)
             {
-                string row = "";
+                ColumnDefinition col = new ColumnDefinition();
+                col.Width = GridLength.Auto;
+                gameBoardGrid.ColumnDefinitions.Add(col);
+            }
+            for (int j = 0; j < gameBoardHeight; j++)
+            {
+                RowDefinition row = new RowDefinition();
+                row.Height = GridLength.Auto;
+                gameBoardGrid.RowDefinitions.Add(row);
+            }
+            for (int r = 0; r < gameBoardHeight; r++)
                 for (int c = 0; c < gameBoardWidth; c++)
                 {
-                    row += gameBoard[r, c];
-                    row += " | ";
+                    Image img = new Image();
+                    img.Source = new BitmapImage(new Uri("ms-appx:///images/mineTest.jpg", UriKind.Absolute));
+                    img.Tapped += img_Tapped;
+                    gameBoardGrid.Children.Add(img);
+                    Grid.SetRow(img, r);
+                    Grid.SetColumn(img, c);
                 }
-                board += row;
-                board += "\n";
-            }
-            testBoardPrint.Text = board;
+        }
+
+        void img_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            int row = Grid.GetRow((Image)sender);
+            int col = Grid.GetColumn((Image)sender);
+            Windows.UI.Popups.MessageDialog msg = new Windows.UI.Popups.MessageDialog(row.ToString() + " " + col.ToString());
+            ((Image)sender).Source = new BitmapImage(new Uri("ms-appx:///images/secondImg.jpg", UriKind.Absolute));
+            msg.ShowAsync();
         }
 
         /// <summary>
@@ -156,6 +191,12 @@ namespace MinesweeperWinStore
         /// session. The state will be null the first time a page is visited.</param>
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
+            gameBoardHeight = boardConfig.Height;
+            gameBoardWidth = boardConfig.Width;
+            numOfMines = boardConfig.NumberOfMines;
+            gameBoard = new char[gameBoardHeight, gameBoardWidth];
+
+            GenerateGameBoard();
         }
 
         /// <summary>
@@ -183,6 +224,7 @@ namespace MinesweeperWinStore
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            boardConfig = (BoardConfiguration)e.Parameter;
             navigationHelper.OnNavigatedTo(e);
         }
 
