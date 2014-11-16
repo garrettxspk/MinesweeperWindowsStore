@@ -141,8 +141,10 @@
     <Content Include="images\1Neighbor.jpg" />
     <Content Include="images\2Neighbor.jpg" />
     <Content Include="images\3Neighbor.jpg" />
-    <Content Include="images\mineTest.jpg" />
+    <Content Include="images\flagged.jpg" />
+    <Content Include="images\guessed.jpg" />
     <Content Include="images\secondImg.jpg" />
+    <Content Include="images\unrevealed.jpg" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

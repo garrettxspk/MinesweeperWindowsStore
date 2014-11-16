@@ -73,7 +73,7 @@ namespace MinesweeperWinStore
             for(int r = 0; r < gameBoardHeight; r++)
                 for (int c = 0; c < gameBoardWidth; c++)
                 {
-                    gameBoard[r, c] = new Cell('0', false);
+                    gameBoard[r, c] = new Cell('0', false, Cell.CellState.Blank);
                 }
         }
 
@@ -196,12 +196,37 @@ namespace MinesweeperWinStore
                 for (int c = 0; c < gameBoardWidth; c++)
                 {
                     Image img = new Image();
-                    img.Source = new BitmapImage(new Uri("ms-appx:///images/mineTest.jpg", UriKind.Absolute));
+                    img.Source = new BitmapImage(new Uri("ms-appx:///images/unrevealed.jpg", UriKind.Absolute));
                     img.Tapped += img_Tapped;
+                    img.RightTapped += img_RightTapped;
                     gameBoardGrid.Children.Add(img);
                     Grid.SetRow(img, r);
                     Grid.SetColumn(img, c);
                 }
+        }
+
+        private void img_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            int row = Grid.GetRow((Image)sender);
+            int col = Grid.GetColumn((Image)sender);
+            if (!gameOver && gameBoard[row, col].State != Cell.CellState.Revealed)
+            {
+                if (gameBoard[row, col].State == Cell.CellState.Blank)
+                {
+                    setFlagAtCell(row, col);
+                    gameBoard[row, col].State = Cell.CellState.Flagged;
+                }
+                else if (gameBoard[row, col].State == Cell.CellState.Flagged)
+                {
+                    setGuessAtCell(row, col);
+                    gameBoard[row, col].State = Cell.CellState.Guessed;
+                }
+                else if (gameBoard[row, col].State == Cell.CellState.Guessed)
+                {
+                    setBlankAtCell(row, col);
+                    gameBoard[row, col].State = Cell.CellState.Blank;
+                }
+            }
         }
 
         void img_Tapped(object sender, TappedRoutedEventArgs e)
@@ -209,10 +234,31 @@ namespace MinesweeperWinStore
             int row = Grid.GetRow((Image)sender);
             int col = Grid.GetColumn((Image)sender);
             
-            if (!gameOver && !gameBoard[row, col].IsReaveled)
+            if (!gameOver && gameBoard[row, col].State == Cell.CellState.Blank)
             {
                 revealCell(row, col);
             }
+        }
+
+        private void setFlagAtCell(int row, int col)
+        {
+            string newSource = "ms-appx:///images/flagged.jpg";
+            Image thisCellImage = gameBoardGrid.Children[row * gameBoardWidth + col] as Image;
+            (thisCellImage).Source = new BitmapImage(new Uri(newSource, UriKind.Absolute));
+        }
+
+        private void setGuessAtCell(int row, int col)
+        {
+            string newSource = "ms-appx:///images/guessed.jpg";
+            Image thisCellImage = gameBoardGrid.Children[row * gameBoardWidth + col] as Image;
+            (thisCellImage).Source = new BitmapImage(new Uri(newSource, UriKind.Absolute));
+        }
+
+        private void setBlankAtCell(int row, int col)
+        {
+            string newSource = "ms-appx:///images/unrevealed.jpg";
+            Image thisCellImage = gameBoardGrid.Children[row * gameBoardWidth + col] as Image;
+            (thisCellImage).Source = new BitmapImage(new Uri(newSource, UriKind.Absolute));
         }
 
         private void revealCell(int row, int col)
@@ -223,11 +269,14 @@ namespace MinesweeperWinStore
                 newSource = "ms-appx:///images/" + gameBoard[row, col].CellType + "Neighbor.jpg";
             }
             else
+            {
                 newSource = "ms-appx:///images/secondImg.jpg";
+            }
 
             Image thisCellImage = gameBoardGrid.Children[row * gameBoardWidth + col] as Image;
             (thisCellImage).Source = new BitmapImage(new Uri(newSource, UriKind.Absolute));
-            gameBoard[row, col].IsReaveled = true;
+            //gameBoard[row, col].IsReaveled = true;
+            gameBoard[row, col].State = Cell.CellState.Revealed;
 
             if (gameBoard[row, col].CellType == NO_NEIGHBORS)
             {
@@ -238,7 +287,7 @@ namespace MinesweeperWinStore
                         int colToCheck = col + neighborC;
 
                         if (rowToCheck >= 0 && rowToCheck < gameBoardHeight && colToCheck >= 0 && colToCheck < gameBoardWidth)
-                            if ((gameBoard[row + neighborR, col + neighborC].CellType != MINE) && (gameBoard[row + neighborR, col + neighborC].IsReaveled == false))
+                            if ((gameBoard[row + neighborR, col + neighborC].CellType != MINE) && (gameBoard[row + neighborR, col + neighborC].State == Cell.CellState.Blank))
                             {
                                 //Image thisCellImage = gameBoardGrid.Children[rowToCheck * gameBoardWidth + colToCheck] as Image;
                                 revealCell(rowToCheck, colToCheck);

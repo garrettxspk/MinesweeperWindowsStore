@@ -24,10 +24,27 @@ namespace MinesweeperWinStore
             set { isReaveled = value; }
         }
 
-        public Cell(char cellT, bool reveal)
+        public Cell(char cellT, bool reveal, CellState s)
         {
             CellType = cellT;
             IsReaveled = reveal;
+            State = s;
+        }
+
+        private CellState state;
+
+        internal CellState State
+        {
+          get { return state; }
+          set { state = value; }
+        }
+
+        public enum CellState
+        {
+            Blank,
+            Flagged,
+            Guessed,
+            Revealed
         }
     }
 }
