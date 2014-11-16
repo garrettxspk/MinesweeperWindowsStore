@@ -271,6 +271,7 @@ namespace MinesweeperWinStore
             else
             {
                 newSource = "ms-appx:///images/secondImg.jpg";
+                gameOver = true;
             }
 
             Image thisCellImage = gameBoardGrid.Children[row * gameBoardWidth + col] as Image;
