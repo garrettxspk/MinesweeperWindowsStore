@@ -4,3 +4,4 @@
 -Make HighScoresPage.
 -Add sound effects.
 -End game when won.
+-Save board state.
