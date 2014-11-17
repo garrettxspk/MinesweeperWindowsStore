@@ -30,7 +30,7 @@ namespace MinesweeperWinStore
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
         
         private BoardConfiguration boardConfig;
-
+        private bool newGame = true;
         private enum ClickType
         {
             Flag,
@@ -219,7 +219,14 @@ namespace MinesweeperWinStore
                 for (int c = 0; c < gameBoardWidth; c++)
                 {
                     Image img = new Image();
-                    img.Source = new BitmapImage(new Uri("ms-appx:///images/unrevealed.jpg", UriKind.Absolute));
+                    if (gameBoard[r, c].State == Cell.CellState.Blank)
+                        img.Source = new BitmapImage(new Uri("ms-appx:///images/unrevealed.jpg", UriKind.Absolute));
+                    else if (gameBoard[r, c].State == Cell.CellState.Flagged)
+                        img.Source = new BitmapImage(new Uri("ms-appx:///images/flagged.jpg", UriKind.Absolute));
+                    else if (gameBoard[r, c].State == Cell.CellState.Guessed)
+                        img.Source = new BitmapImage(new Uri("ms-appx:///images/guessed.jpg", UriKind.Absolute));
+                    else if (gameBoard[r, c].State == Cell.CellState.Revealed)
+                        img.Source = new BitmapImage(new Uri("ms-appx:///images/" + gameBoard[r,c].CellType + "Neighbor.jpg", UriKind.Absolute));
                     img.Tapped += img_Tapped;
                     img.RightTapped += img_RightTapped;
                     gameBoardGrid.Children.Add(img);
@@ -247,6 +254,8 @@ namespace MinesweeperWinStore
                 else if (gameBoard[row, col].State == Cell.CellState.Guessed)
                     setBlankAtCell(row, col);
             }
+            //This disables the AppBar from showing/dismissing when the board is RightTapped
+            e.Handled = true;
         }
 
         void img_Tapped(object sender, TappedRoutedEventArgs e)
@@ -366,16 +375,42 @@ namespace MinesweeperWinStore
         /// session. The state will be null the first time a page is visited.</param>
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            gameBoardHeight = boardConfig.Height;
-            gameBoardWidth = boardConfig.Width;
-            numberOfMines = boardConfig.NumberOfMines;
-            numberOfUncoveredMines = numberOfMines;
-            mineDisplay.Text = numberOfUncoveredMines.ToString();
-            gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
+            Windows.Storage.ApplicationDataContainer localSettings =
+                Windows.Storage.ApplicationData.Current.LocalSettings;
 
-            gameOver = false;
-            FillGameBoard();
-            GenerateGameBoard();
+            //load saved game
+            if (localSettings.Values.ContainsKey("underlyingBoard"))
+            {
+                string underlyingBoard = localSettings.Values["underlyingBoard"].ToString();
+                string graphicalBoard = localSettings.Values["graphicalBoard"].ToString();
+                gameBoardHeight = Convert.ToInt32(localSettings.Values["gameBoardHeight"].ToString());
+                gameBoardWidth = Convert.ToInt32(localSettings.Values["gameBoardWidth"].ToString());
+                numberOfMines = Convert.ToInt32(localSettings.Values["numberOfMines"].ToString());
+                numberOfFlagsSet = Convert.ToInt32(localSettings.Values["numberOfFlags"].ToString());
+                numberOfUncoveredMines = numberOfMines - numberOfFlagsSet;
+                mineDisplay.Text = numberOfUncoveredMines.ToString();
+                numberOfSeconds = Convert.ToInt32(localSettings.Values["time"].ToString());
+                timeDisplay.Text = numberOfSeconds.ToString();
+                gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
+
+                gameOver = false;
+                FillGameBoard();
+                GenerateGameBoardFromString(underlyingBoard, graphicalBoard);
+            }
+            //start new game
+            else
+            {
+                gameBoardHeight = boardConfig.Height;
+                gameBoardWidth = boardConfig.Width;
+                numberOfMines = boardConfig.NumberOfMines;
+                numberOfUncoveredMines = numberOfMines;
+                mineDisplay.Text = numberOfUncoveredMines.ToString();
+                gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
+
+                gameOver = false;
+                FillGameBoard();
+                GenerateGameBoard();
+            }
         }
 
         /// <summary>
@@ -388,8 +423,70 @@ namespace MinesweeperWinStore
         /// serializable state.</param>
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
+            Windows.Storage.ApplicationDataContainer localSettings =
+                Windows.Storage.ApplicationData.Current.LocalSettings;
 
+            localSettings.Values["underlyingBoard"] = underlyingBoardToString();
+            localSettings.Values["graphicalBoard"] = graphicalBoardToString();
+            localSettings.Values["gameBoardHeight"] = gameBoardHeight;
+            localSettings.Values["gameBoardWidth"] = gameBoardWidth;
+            localSettings.Values["numberOfMines"] = numberOfMines;
+            localSettings.Values["numberOfFlags"] = numberOfFlagsSet;
+            localSettings.Values["time"] = numberOfSeconds;
         }
+
+        private string underlyingBoardToString()
+        {
+            string underlyingBoard = "";
+            for (int r = 0; r < gameBoardHeight; r++)
+                for (int c = 0; c < gameBoardWidth; c++)
+                {
+                    underlyingBoard += gameBoard[r, c].CellType;
+                }
+            return underlyingBoard;
+        }
+
+        private string graphicalBoardToString()
+        {
+            string graphicalBoard = "";
+            for (int r = 0; r < gameBoardHeight; r++)
+                for (int c = 0; c < gameBoardWidth; c++)
+                {
+                    if (gameBoard[r, c].State == Cell.CellState.Blank)
+                        graphicalBoard += 'B';
+                    else if (gameBoard[r, c].State == Cell.CellState.Flagged)
+                        graphicalBoard += 'F';
+                    else if (gameBoard[r, c].State == Cell.CellState.Guessed)
+                        graphicalBoard += 'G';
+                    else
+                        graphicalBoard += 'R';
+                }
+            return graphicalBoard;
+        }
+
+        private void GenerateGameBoardFromString(string underlying, string graphical)
+        {
+            int i = 0;
+            for (int r = 0; r < gameBoardHeight; r++)
+                for (int c = 0; c < gameBoardWidth; c++)
+                {
+                    gameBoard[r, c].CellType = underlying[i];
+
+                    if (graphical[i] == 'B')
+                        gameBoard[r, c].State = Cell.CellState.Blank;
+                    else if (graphical[i] == 'F')
+                        gameBoard[r, c].State = Cell.CellState.Flagged;
+                    else if (graphical[i] == 'G')
+                        gameBoard[r, c].State = Cell.CellState.Guessed;
+                    else
+                        gameBoard[r, c].State = Cell.CellState.Blank;
+
+                    i++;
+                }
+            PrintGameBoard();
+            timer.Start();
+        }
+
 
         #region NavigationHelper registration
 
@@ -405,6 +502,7 @@ namespace MinesweeperWinStore
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             boardConfig = (BoardConfiguration)e.Parameter;
+            newGame = boardConfig.NewGame;
             navigationHelper.OnNavigatedTo(e);
         }
 

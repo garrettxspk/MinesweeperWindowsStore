@@ -58,7 +58,7 @@
     </Grid>
 
     <Page.BottomAppBar>
-        <AppBar Name="bottomAppBar">
+        <AppBar Name="bottomAppBar" IsSticky="True" IsOpen="True">
             <Grid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <TextBlock Text="Click Type: " Margin="30, 0, 10, 0" VerticalAlignment="Center" FontSize="16"/>

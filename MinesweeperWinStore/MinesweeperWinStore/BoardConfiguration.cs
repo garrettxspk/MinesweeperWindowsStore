@@ -32,11 +32,20 @@ namespace MinesweeperWinStore
             set { numberOfMines = value; }
         }
 
-        public BoardConfiguration(int h, int w, int m)
+        private bool newGame;
+
+        public bool NewGame
+        {
+            get { return newGame; }
+            set { newGame = value; }
+        }
+
+        public BoardConfiguration(int h, int w, int m, bool nG)
         {
             height = h;
             width = w;
             numberOfMines = m;
+            newGame = nG;
         }
     }
 }
