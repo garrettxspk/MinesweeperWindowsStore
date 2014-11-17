@@ -1,6 +1,6 @@
--Add Flagged and Guessed functionality to AppBar
 -Add button to AboutPage (Make AboutPage) to AppBar
 -Track time spent playing the game
 -Add time counter/mine tracker above the game board
 -Store high scores
 -Make HighScoresPage
+-Add sound effects

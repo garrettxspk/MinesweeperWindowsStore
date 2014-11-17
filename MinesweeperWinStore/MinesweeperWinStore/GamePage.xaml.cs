@@ -31,6 +31,15 @@ namespace MinesweeperWinStore
         
         private BoardConfiguration boardConfig;
 
+        private enum ClickType
+        {
+            Flag,
+            Guess,
+            Reveal
+        }
+
+        private ClickType currentClickType = ClickType.Reveal;
+
         private const char MINE = 'M';
         private const char NO_NEIGHBORS = '0';
         private const int IMAGE_SIZE = 66;
@@ -38,8 +47,12 @@ namespace MinesweeperWinStore
         private bool gameOver;
         private int gameBoardWidth;
         private int gameBoardHeight;
-        private int numOfMines;
+        private int numberOfMines;
+        private int numberOfUncoveredMines;
+        private int numberOfFlagsSet = 0;
         private Cell[,] gameBoard;
+        private DispatcherTimer timer;
+        int numberOfSeconds = 0;
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
@@ -66,6 +79,15 @@ namespace MinesweeperWinStore
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
             this.navigationHelper.SaveState += navigationHelper_SaveState;
+            timer = new DispatcherTimer();
+            timer.Interval = new TimeSpan(0, 0, 1);
+            timer.Tick += timer_Tick;
+        }
+
+        private void timer_Tick(object sender, object e)
+        {
+            numberOfSeconds++;
+            timeDisplay.Text = numberOfSeconds.ToString();
         }
 
         private void FillGameBoard()
@@ -81,16 +103,16 @@ namespace MinesweeperWinStore
         {
             int numberOfMinesPlaced = 0;
             Random random = new Random();
-            double mineDensityDecimal = (double)numOfMines / (double)(gameBoardWidth * gameBoardHeight);
+            double mineDensityDecimal = (double)numberOfMines / (double)(gameBoardWidth * gameBoardHeight);
             int mineDensity = (int)(mineDensityDecimal * 100);
             bool allMinesPlaced = false;
 
-            while (numberOfMinesPlaced != numOfMines)
+            while (numberOfMinesPlaced != numberOfMines)
             {
                 for(int r = 0; r < gameBoardHeight && !allMinesPlaced; r++)
                     for (int c = 0; c < gameBoardWidth && !allMinesPlaced; c++)
                     {
-                        if (numberOfMinesPlaced == numOfMines)
+                        if (numberOfMinesPlaced == numberOfMines)
                             allMinesPlaced = true;
                         else
                         {
@@ -128,6 +150,7 @@ namespace MinesweeperWinStore
                     }
                 }
             PrintGameBoard();
+            timer.Start();
         }
 
         private void PrintGameBoard()
@@ -213,19 +236,16 @@ namespace MinesweeperWinStore
             {
                 if (gameBoard[row, col].State == Cell.CellState.Blank)
                 {
+                    numberOfFlagsSet++;
                     setFlagAtCell(row, col);
-                    gameBoard[row, col].State = Cell.CellState.Flagged;
                 }
                 else if (gameBoard[row, col].State == Cell.CellState.Flagged)
                 {
+                    numberOfFlagsSet--;
                     setGuessAtCell(row, col);
-                    gameBoard[row, col].State = Cell.CellState.Guessed;
                 }
                 else if (gameBoard[row, col].State == Cell.CellState.Guessed)
-                {
                     setBlankAtCell(row, col);
-                    gameBoard[row, col].State = Cell.CellState.Blank;
-                }
             }
         }
 
@@ -236,7 +256,24 @@ namespace MinesweeperWinStore
             
             if (!gameOver && gameBoard[row, col].State == Cell.CellState.Blank)
             {
-                revealCell(row, col);
+                if (currentClickType == ClickType.Reveal)
+                    revealCell(row, col);
+                else if (currentClickType == ClickType.Flag)
+                {
+                    numberOfFlagsSet++;
+                    setFlagAtCell(row, col);
+                }
+                else if (currentClickType == ClickType.Guess)
+                    setGuessAtCell(row, col);
+            }
+            else if (!gameOver && (gameBoard[row, col].State == Cell.CellState.Flagged || gameBoard[row, col].State == Cell.CellState.Guessed))
+            {
+                if (currentClickType == ClickType.Guess || currentClickType == ClickType.Flag)
+                {
+                    if (currentClickType == ClickType.Flag)
+                        numberOfFlagsSet--;
+                    setBlankAtCell(row, col);
+                }
             }
         }
 
@@ -245,6 +282,9 @@ namespace MinesweeperWinStore
             string newSource = "ms-appx:///images/flagged.jpg";
             Image thisCellImage = gameBoardGrid.Children[row * gameBoardWidth + col] as Image;
             (thisCellImage).Source = new BitmapImage(new Uri(newSource, UriKind.Absolute));
+            gameBoard[row, col].State = Cell.CellState.Flagged;
+
+            setMineDisplay();
         }
 
         private void setGuessAtCell(int row, int col)
@@ -252,6 +292,9 @@ namespace MinesweeperWinStore
             string newSource = "ms-appx:///images/guessed.jpg";
             Image thisCellImage = gameBoardGrid.Children[row * gameBoardWidth + col] as Image;
             (thisCellImage).Source = new BitmapImage(new Uri(newSource, UriKind.Absolute));
+            gameBoard[row, col].State = Cell.CellState.Guessed;
+
+            setMineDisplay();
         }
 
         private void setBlankAtCell(int row, int col)
@@ -259,6 +302,18 @@ namespace MinesweeperWinStore
             string newSource = "ms-appx:///images/unrevealed.jpg";
             Image thisCellImage = gameBoardGrid.Children[row * gameBoardWidth + col] as Image;
             (thisCellImage).Source = new BitmapImage(new Uri(newSource, UriKind.Absolute));
+            gameBoard[row, col].State = Cell.CellState.Blank;
+
+            setMineDisplay();
+        }
+
+        private void setMineDisplay()
+        {
+            int numCovered = numberOfUncoveredMines - numberOfFlagsSet;
+            if (numCovered < 0)
+                numCovered = 0;
+
+            mineDisplay.Text = numCovered.ToString();
         }
 
         private void revealCell(int row, int col)
@@ -272,6 +327,7 @@ namespace MinesweeperWinStore
             {
                 newSource = "ms-appx:///images/secondImg.jpg";
                 gameOver = true;
+                timer.Stop();
             }
 
             Image thisCellImage = gameBoardGrid.Children[row * gameBoardWidth + col] as Image;
@@ -312,7 +368,9 @@ namespace MinesweeperWinStore
         {
             gameBoardHeight = boardConfig.Height;
             gameBoardWidth = boardConfig.Width;
-            numOfMines = boardConfig.NumberOfMines;
+            numberOfMines = boardConfig.NumberOfMines;
+            numberOfUncoveredMines = numberOfMines;
+            mineDisplay.Text = numberOfUncoveredMines.ToString();
             gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
 
             gameOver = false;
@@ -356,5 +414,25 @@ namespace MinesweeperWinStore
         }
 
         #endregion
+
+        private void AppBarHelpButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void revealRdoBtn_Checked(object sender, RoutedEventArgs e)
+        {
+            currentClickType = ClickType.Reveal;
+        }
+
+        private void flagRdoBtn_Checked(object sender, RoutedEventArgs e)
+        {
+            currentClickType = ClickType.Flag;
+        }
+
+        private void guessRdoBtn_Checked(object sender, RoutedEventArgs e)
+        {
+            currentClickType = ClickType.Guess;
+        }
     }
 }

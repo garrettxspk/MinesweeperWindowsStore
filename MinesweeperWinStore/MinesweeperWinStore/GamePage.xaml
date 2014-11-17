@@ -46,9 +46,31 @@
             <TextBlock x:Name="pageTitle" Text="{StaticResource PageName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
         </Grid>
-        <Grid x:Name="gameBoardGrid" HorizontalAlignment="Center" Margin="0" Grid.Row="1" VerticalAlignment="Center">
-            
-        </Grid>
+        <Grid x:Name="gameBoardGrid" HorizontalAlignment="Center" Margin="0,0,0,0" Grid.Row="1" VerticalAlignment="Center">
 
+        </Grid>
+        <Border BorderBrush="Red" BorderThickness="1" HorizontalAlignment="Center" Height="71" Margin="0,25,0,0" VerticalAlignment="Top" Width="188" Grid.Row="1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="timeDisplay" VerticalAlignment="Center" Text="0" FontSize="24"/>
+                <TextBlock x:Name="mineDisplay" VerticalAlignment="Center" Text="1" FontSize="24" Margin="150,0,0,0"/> 
+            </StackPanel>
+        </Border>
     </Grid>
+
+    <Page.BottomAppBar>
+        <AppBar Name="bottomAppBar">
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBlock Text="Click Type: " Margin="30, 0, 10, 0" VerticalAlignment="Center" FontSize="16"/>
+                    <RadioButton x:Name="revealRdoBtn" Content="Reveal" IsChecked="True" Checked="revealRdoBtn_Checked" Margin="15, 0, 15, 0"/>
+                    <RadioButton x:Name="flagRdoBtn" Content="Flag" Checked="flagRdoBtn_Checked"  Margin="15, 0, 15, 0"/>
+                    <RadioButton x:Name="guessRdoBtn" Content="Guess" Checked="guessRdoBtn_Checked"  Margin="15, 0, 15, 0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <AppBarButton Icon="Help" Label="Help"
+                        Click="AppBarHelpButton_Click" HorizontalAlignment="Right" />
+                </StackPanel>
+            </Grid>
+        </AppBar>
+    </Page.BottomAppBar>
 </Page>
