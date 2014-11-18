@@ -76,7 +76,18 @@ namespace MinesweeperWinStore
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter
-                rootFrame.Navigate(typeof(MainPage), e.Arguments);
+
+                //////////////////////ADDED////////////////////
+                Windows.Storage.ApplicationDataContainer localSettings =
+                    Windows.Storage.ApplicationData.Current.LocalSettings;
+                if (localSettings.Values.ContainsKey("underlyingBoard"))
+                {
+                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                    rootFrame.Navigate(typeof(GamePage), new BoardConfiguration(0, 0, 0, false));
+                }
+                else
+                //////////////////////ADDED////////////////////
+                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
             }
             // Ensure the current window is active
             Window.Current.Activate();

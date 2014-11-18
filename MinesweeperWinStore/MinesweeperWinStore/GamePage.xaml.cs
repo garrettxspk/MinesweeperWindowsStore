@@ -219,6 +219,7 @@ namespace MinesweeperWinStore
                 for (int c = 0; c < gameBoardWidth; c++)
                 {
                     Image img = new Image();
+
                     if (gameBoard[r, c].State == Cell.CellState.Blank)
                         img.Source = new BitmapImage(new Uri("ms-appx:///images/unrevealed.jpg", UriKind.Absolute));
                     else if (gameBoard[r, c].State == Cell.CellState.Flagged)
@@ -227,6 +228,7 @@ namespace MinesweeperWinStore
                         img.Source = new BitmapImage(new Uri("ms-appx:///images/guessed.jpg", UriKind.Absolute));
                     else if (gameBoard[r, c].State == Cell.CellState.Revealed)
                         img.Source = new BitmapImage(new Uri("ms-appx:///images/" + gameBoard[r,c].CellType + "Neighbor.jpg", UriKind.Absolute));
+
                     img.Tapped += img_Tapped;
                     img.RightTapped += img_RightTapped;
                     gameBoardGrid.Children.Add(img);
@@ -379,7 +381,7 @@ namespace MinesweeperWinStore
                 Windows.Storage.ApplicationData.Current.LocalSettings;
 
             //load saved game
-            if (localSettings.Values.ContainsKey("underlyingBoard"))
+            if (localSettings.Values.ContainsKey("underlyingBoard") && !newGame)
             {
                 string underlyingBoard = localSettings.Values["underlyingBoard"].ToString();
                 string graphicalBoard = localSettings.Values["graphicalBoard"].ToString();
@@ -479,10 +481,11 @@ namespace MinesweeperWinStore
                     else if (graphical[i] == 'G')
                         gameBoard[r, c].State = Cell.CellState.Guessed;
                     else
-                        gameBoard[r, c].State = Cell.CellState.Blank;
+                        gameBoard[r, c].State = Cell.CellState.Revealed;
 
                     i++;
                 }
+
             PrintGameBoard();
             timer.Start();
         }
