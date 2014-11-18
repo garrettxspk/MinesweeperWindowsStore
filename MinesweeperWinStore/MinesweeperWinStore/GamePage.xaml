@@ -57,6 +57,7 @@
         </Border>
 
         <MediaElement x:Name="bombSound" AudioCategory="GameEffects" Source="Assets/SoundEffects/bomb.wav" AutoPlay="False" Visibility="Collapsed"/>
+        <MediaElement x:Name="digSound" AudioCategory="GameEffects" Source="Assets/SoundEffects/dig.wav" AutoPlay="False" Visibility="Collapsed"/>
     </Grid>
 
     <Page.BottomAppBar>
@@ -69,6 +70,8 @@
                     <RadioButton x:Name="guessRdoBtn" Content="Guess" Checked="guessRdoBtn_Checked"  Margin="15, 0, 15, 0"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <AppBarButton x:Name="soundBtn" Icon="Volume" Label="Sound"
+                        Click="soundOn_Click" HorizontalAlignment="Right" />
                     <AppBarButton Icon="Help" Label="Help"
                         Click="AppBarHelpButton_Click" HorizontalAlignment="Right" />
                 </StackPanel>

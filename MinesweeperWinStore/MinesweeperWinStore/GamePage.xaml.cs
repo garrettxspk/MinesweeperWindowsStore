@@ -53,6 +53,7 @@ namespace MinesweeperWinStore
         private Cell[,] gameBoard;
         private DispatcherTimer timer;
         int numberOfSeconds = 0;
+        bool isSoundOn = true;
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
@@ -150,7 +151,7 @@ namespace MinesweeperWinStore
                     }
                 }
             PrintGameBoard();
-            timer.Start();
+            if(!gameOver) timer.Start();
         }
 
         private void PrintGameBoard()
@@ -227,7 +228,12 @@ namespace MinesweeperWinStore
                     else if (gameBoard[r, c].State == Cell.CellState.Guessed)
                         img.Source = new BitmapImage(new Uri("ms-appx:///images/guessed.jpg", UriKind.Absolute));
                     else if (gameBoard[r, c].State == Cell.CellState.Revealed)
-                        img.Source = new BitmapImage(new Uri("ms-appx:///images/" + gameBoard[r,c].CellType + "Neighbor.jpg", UriKind.Absolute));
+                    {
+                        if (gameBoard[r, c].CellType == MINE)
+                            img.Source = new BitmapImage(new Uri("ms-appx:///images/secondImg.jpg", UriKind.Absolute));
+                        else
+                            img.Source = new BitmapImage(new Uri("ms-appx:///images/" + gameBoard[r, c].CellType + "Neighbor.jpg", UriKind.Absolute));
+                    }
 
                     img.Tapped += img_Tapped;
                     img.RightTapped += img_RightTapped;
@@ -334,12 +340,13 @@ namespace MinesweeperWinStore
             string newSource;
             if (gameBoard[row, col].CellType != MINE)
             {
+                if(isSoundOn) digSound.Play();
                 newSource = "ms-appx:///images/" + gameBoard[row, col].CellType + "Neighbor.jpg";
             }
             else
             {
                 newSource = "ms-appx:///images/secondImg.jpg";
-                bombSound.Play();
+                if(isSoundOn) bombSound.Play();
                 gameOver = true;
                 timer.Stop();
             }
@@ -501,7 +508,7 @@ namespace MinesweeperWinStore
                 }
 
             PrintGameBoard();
-            timer.Start();
+            if (!gameOver) timer.Start();
         }
 
 
@@ -548,6 +555,15 @@ namespace MinesweeperWinStore
         private void guessRdoBtn_Checked(object sender, RoutedEventArgs e)
         {
             currentClickType = ClickType.Guess;
+        }
+
+        private void soundOn_Click(object sender, RoutedEventArgs e)
+        {
+            isSoundOn = !isSoundOn;
+            if (isSoundOn)
+                soundBtn.Icon = new SymbolIcon(Symbol.Volume);
+            else
+                soundBtn.Icon = new SymbolIcon(Symbol.Mute);
         }
     }
 }
