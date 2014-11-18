@@ -55,6 +55,8 @@
                 <TextBlock x:Name="mineDisplay" VerticalAlignment="Center" Text="1" FontSize="24" Margin="150,0,0,0"/> 
             </StackPanel>
         </Border>
+
+        <MediaElement x:Name="bombSound" AudioCategory="GameEffects" Source="Assets/SoundEffects/bomb.wav" AutoPlay="False" Visibility="Collapsed"/>
     </Grid>
 
     <Page.BottomAppBar>

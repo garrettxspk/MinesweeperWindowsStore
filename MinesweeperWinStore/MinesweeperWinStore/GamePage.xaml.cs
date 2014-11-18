@@ -257,6 +257,7 @@ namespace MinesweeperWinStore
                     setBlankAtCell(row, col);
             }
             //This disables the AppBar from showing/dismissing when the board is RightTapped
+            saveBoardState();
             e.Handled = true;
         }
 
@@ -286,6 +287,7 @@ namespace MinesweeperWinStore
                     setBlankAtCell(row, col);
                 }
             }
+            saveBoardState();
         }
 
         private void setFlagAtCell(int row, int col)
@@ -337,6 +339,7 @@ namespace MinesweeperWinStore
             else
             {
                 newSource = "ms-appx:///images/secondImg.jpg";
+                bombSound.Play();
                 gameOver = true;
                 timer.Stop();
             }
@@ -393,9 +396,14 @@ namespace MinesweeperWinStore
                 mineDisplay.Text = numberOfUncoveredMines.ToString();
                 numberOfSeconds = Convert.ToInt32(localSettings.Values["time"].ToString());
                 timeDisplay.Text = numberOfSeconds.ToString();
+                if (localSettings.Values.ContainsKey("gameOver"))
+                {
+                    gameOver = Convert.ToBoolean(localSettings.Values["gameOver"].ToString());
+                }
+                else
+                    gameOver = false;
+                
                 gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
-
-                gameOver = false;
                 FillGameBoard();
                 GenerateGameBoardFromString(underlyingBoard, graphicalBoard);
             }
@@ -425,6 +433,11 @@ namespace MinesweeperWinStore
         /// serializable state.</param>
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
+            saveBoardState();
+        }
+
+        private void saveBoardState()
+        {
             Windows.Storage.ApplicationDataContainer localSettings =
                 Windows.Storage.ApplicationData.Current.LocalSettings;
 
@@ -434,6 +447,7 @@ namespace MinesweeperWinStore
             localSettings.Values["gameBoardWidth"] = gameBoardWidth;
             localSettings.Values["numberOfMines"] = numberOfMines;
             localSettings.Values["numberOfFlags"] = numberOfFlagsSet;
+            localSettings.Values["gameOver"] = gameOver;
             localSettings.Values["time"] = numberOfSeconds;
         }
 
