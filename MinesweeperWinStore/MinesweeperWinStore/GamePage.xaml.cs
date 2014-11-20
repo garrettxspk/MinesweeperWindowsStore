@@ -44,7 +44,7 @@ namespace MinesweeperWinStore
         private const char MINE = 'M';
         private const char NO_NEIGHBORS = '0';
         private const int IMAGE_SIZE = 66;
-        
+
         private bool gameOver;
         private int gameBoardWidth;
         private int gameBoardHeight;
@@ -335,9 +335,6 @@ namespace MinesweeperWinStore
         private void setMineDisplay()
         {
             int numCovered = numberOfUncoveredMines - numberOfFlagsSet;
-            if (numCovered < 0)
-                numCovered = 0;
-
             mineDisplay.Text = numCovered.ToString();
         }
 
@@ -351,10 +348,11 @@ namespace MinesweeperWinStore
             }
             else
             {
-                newSource = "ms-appx:///images/mine.jpg";
+                newSource = "ms-appx:///images/mineClicked.jpg";
                 if(isSoundOn) bombSound.Play();
                 emojiImage.Source = new BitmapImage(new Uri("ms-appx:///images/frownEmoji.jpg", UriKind.Absolute));
                 gameOver = true;
+                revealMines();
                 timer.Stop();
             }
 
@@ -586,6 +584,16 @@ namespace MinesweeperWinStore
                 soundBtn.Icon = new SymbolIcon(Symbol.Mute);
         }
 
+        private void revealMines()
+        {
+            for (int r = 0; r < gameBoardHeight; r++)
+                for (int c = 0; c < gameBoardWidth; c++)
+                {
+                    if (gameBoard[r, c].CellType == MINE)
+                        revealCell(r, c);
+                }
+        }
+
         private async void emojiImage_Tapped(object sender, TappedRoutedEventArgs e)
         {
             MessageDialog newGameDialog = new MessageDialog("Are you sure you want to start a new game? Progress will be lost for this game");
@@ -605,6 +613,7 @@ namespace MinesweeperWinStore
             if(command.Label != "Cancel")
             {
                 numberOfUncoveredMines = numberOfMines;
+                numberOfFlagsSet = 0;
                 mineDisplay.Text = numberOfUncoveredMines.ToString();
 
                 gameBoard = new Cell[gameBoardHeight, gameBoardWidth];

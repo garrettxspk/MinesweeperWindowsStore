@@ -153,6 +153,7 @@
     <Content Include="images\frownEmoji.jpg" />
     <Content Include="images\guessed.jpg" />
     <Content Include="images\mine.jpg" />
+    <Content Include="images\mineClicked.jpg" />
     <Content Include="images\secondImg.jpg" />
     <Content Include="images\smileEmoji.png" />
     <Content Include="images\sunglassesEmoji.png" />

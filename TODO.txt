@@ -1,9 +1,4 @@
--Add button to AboutPage (Make AboutPage) to AppBar.(Sam)
--(THIS IS DONE, BUT NEEDS TO BE MADE "PRETTY") Add time counter/mine tracker above the game board. (Sam)
 -Store high scores. (Sam)
 -Make HighScoresPage. (Sam)
 -End game when won. (Sam)
 	-Notify that the game is lost/won
-
--Add sound effects. (Garrett)
--Save board state. (Garrett)
