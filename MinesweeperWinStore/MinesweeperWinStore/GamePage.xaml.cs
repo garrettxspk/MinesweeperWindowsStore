@@ -158,19 +158,17 @@ namespace MinesweeperWinStore
             if(!gameOver) timer.Start();
         }
 
-        private void PrintGameBoard()
+        private void initializeGridSize()
         {
-            if (gameBoardGrid.Children.Count > 0)
-            {
-                gameBoardGrid.Children.Clear();
-            }
-
             Rect bounds = Window.Current.Bounds;
             double appHeight = bounds.Height;
             double appWidth = bounds.Width;
 
             gameBoardGrid.MaxHeight = (.8 * (appHeight - 140));
             gameBoardGrid.MaxWidth = (.9 * appWidth);
+
+            gameBoardGrid.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Center;
+            gameBoardGrid.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Center;
 
             double totalHeight = gameBoardHeight * IMAGE_SIZE;
             double totalWidth = gameBoardWidth * IMAGE_SIZE;
@@ -183,7 +181,7 @@ namespace MinesweeperWinStore
             if (totalHeight > gameBoardGrid.MaxHeight && totalWidth > gameBoardGrid.MaxWidth)
             {
                 if (widthOvershoot > heightOvershoot)
-                    newImageDimension = new GridLength(Math.Floor(gameBoardGrid.MaxWidth / gameBoardWidth));     
+                    newImageDimension = new GridLength(Math.Floor(gameBoardGrid.MaxWidth / gameBoardWidth));
                 else
                     newImageDimension = new GridLength(Math.Floor(gameBoardGrid.MaxHeight / gameBoardHeight));
                 auto = false;
@@ -224,7 +222,10 @@ namespace MinesweeperWinStore
                 row.Height = rowGridLength;
                 gameBoardGrid.RowDefinitions.Add(row);
             }
+        }
 
+        private void PrintGameBoard()
+        {
             for (int r = 0; r < gameBoardHeight; r++)
                 for (int c = 0; c < gameBoardWidth; c++)
                 {
@@ -387,8 +388,7 @@ namespace MinesweeperWinStore
                 emojiImage.Source = new BitmapImage(new Uri("ms-appx:///images/sunglassesEmoji.png", UriKind.Absolute));
                 currentEmojiSource = "ms-appx:///images/sunglassesEmoji.png";
                 gameOver = true;
-                numberOfUncoveredMines = 0;
-                setMineDisplay();
+                mineDisplay.Text = "0";
                 flagMines();
                 timer.Stop();
             }
@@ -434,6 +434,7 @@ namespace MinesweeperWinStore
                 
                 gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
                 FillGameBoard();
+                initializeGridSize();
                 GenerateGameBoardFromString(underlyingBoard, graphicalBoard);
             }
             //start new game
@@ -448,6 +449,7 @@ namespace MinesweeperWinStore
                 
                 gameOver = false;
                 FillGameBoard();
+                initializeGridSize();
                 GenerateGameBoard();
                 saveBoardState();
             }
@@ -667,7 +669,7 @@ namespace MinesweeperWinStore
                 numberOfFlagsSet = 0;
                 mineDisplay.Text = numberOfUncoveredMines.ToString();
 
-                gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
+                //gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
 
                 gameOver = false;
                 emojiImage.Source = new BitmapImage(new Uri("ms-appx:///images/smileEmoji.png", UriKind.Absolute));
