@@ -149,6 +149,7 @@
     <Content Include="images\7Neighbor.jpg" />
     <Content Include="images\8Neighbor.jpg" />
     <Content Include="images\aboutPage.jpg" />
+    <Content Include="images\falseMine.jpg" />
     <Content Include="images\flagged.jpg" />
     <Content Include="images\frownEmoji.jpg" />
     <Content Include="images\guessed.jpg" />
