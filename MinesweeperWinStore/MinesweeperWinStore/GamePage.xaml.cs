@@ -586,11 +586,15 @@ namespace MinesweeperWinStore
 
         private void revealMines()
         {
+            string newSource = "ms-appx:///images/mine.jpg";
             for (int r = 0; r < gameBoardHeight; r++)
                 for (int c = 0; c < gameBoardWidth; c++)
                 {
                     if (gameBoard[r, c].CellType == MINE)
-                        revealCell(r, c);
+                    {
+                        Image thisCellImage = gameBoardGrid.Children[r * gameBoardWidth + c] as Image;
+                        (thisCellImage).Source = new BitmapImage(new Uri(newSource, UriKind.Absolute));
+                    }
                 }
         }
 
