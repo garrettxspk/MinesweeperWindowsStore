@@ -7,6 +7,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -52,8 +53,8 @@ namespace MinesweeperWinStore
         private int numberOfFlagsSet = 0;
         private Cell[,] gameBoard;
         private DispatcherTimer timer;
-        int numberOfSeconds = 0;
-        bool isSoundOn = true;
+        private int numberOfSeconds = 0;
+        public static bool isSoundOn = true;
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
@@ -156,6 +157,11 @@ namespace MinesweeperWinStore
 
         private void PrintGameBoard()
         {
+            if (gameBoardGrid.Children.Count > 0)
+            {
+                gameBoardGrid.Children.Clear();
+            }
+
             Rect bounds = Window.Current.Bounds;
             double appHeight = bounds.Height;
             double appWidth = bounds.Width;
@@ -230,7 +236,7 @@ namespace MinesweeperWinStore
                     else if (gameBoard[r, c].State == Cell.CellState.Revealed)
                     {
                         if (gameBoard[r, c].CellType == MINE)
-                            img.Source = new BitmapImage(new Uri("ms-appx:///images/secondImg.jpg", UriKind.Absolute));
+                            img.Source = new BitmapImage(new Uri("ms-appx:///images/mine.jpg", UriKind.Absolute));
                         else
                             img.Source = new BitmapImage(new Uri("ms-appx:///images/" + gameBoard[r, c].CellType + "Neighbor.jpg", UriKind.Absolute));
                     }
@@ -345,8 +351,9 @@ namespace MinesweeperWinStore
             }
             else
             {
-                newSource = "ms-appx:///images/secondImg.jpg";
+                newSource = "ms-appx:///images/mine.jpg";
                 if(isSoundOn) bombSound.Play();
+                emojiImage.Source = new BitmapImage(new Uri("ms-appx:///images/frownEmoji.jpg", UriKind.Absolute));
                 gameOver = true;
                 timer.Stop();
             }
@@ -401,6 +408,8 @@ namespace MinesweeperWinStore
                 numberOfFlagsSet = Convert.ToInt32(localSettings.Values["numberOfFlags"].ToString());
                 numberOfUncoveredMines = numberOfMines - numberOfFlagsSet;
                 mineDisplay.Text = numberOfUncoveredMines.ToString();
+                //string uri = localSettings.Values["emojiPicture"].ToString();
+                //emojiImage.Source = new BitmapImage(new Uri(uri, UriKind.Absolute));
                 numberOfSeconds = Convert.ToInt32(localSettings.Values["time"].ToString());
                 timeDisplay.Text = numberOfSeconds.ToString();
                 if (localSettings.Values.ContainsKey("gameOver"))
@@ -423,10 +432,11 @@ namespace MinesweeperWinStore
                 numberOfUncoveredMines = numberOfMines;
                 mineDisplay.Text = numberOfUncoveredMines.ToString();
                 gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
-
+                
                 gameOver = false;
                 FillGameBoard();
                 GenerateGameBoard();
+                saveBoardState();
             }
         }
 
@@ -456,6 +466,7 @@ namespace MinesweeperWinStore
             localSettings.Values["numberOfFlags"] = numberOfFlagsSet;
             localSettings.Values["gameOver"] = gameOver;
             localSettings.Values["time"] = numberOfSeconds;
+            localSettings.Values["emojiPicture"] = emojiImage.Source.ToString();
         }
 
         private string underlyingBoardToString()
@@ -539,7 +550,7 @@ namespace MinesweeperWinStore
 
         private void AppBarHelpButton_Click(object sender, RoutedEventArgs e)
         {
-
+            this.Frame.Navigate(typeof(AboutPage));
         }
 
         private void revealRdoBtn_Checked(object sender, RoutedEventArgs e)
@@ -564,6 +575,50 @@ namespace MinesweeperWinStore
                 soundBtn.Icon = new SymbolIcon(Symbol.Volume);
             else
                 soundBtn.Icon = new SymbolIcon(Symbol.Mute);
+        }
+
+        public void toggleSound()
+        {
+            isSoundOn = !isSoundOn;
+            if (isSoundOn)
+                soundBtn.Icon = new SymbolIcon(Symbol.Volume);
+            else
+                soundBtn.Icon = new SymbolIcon(Symbol.Mute);
+        }
+
+        private async void emojiImage_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            MessageDialog newGameDialog = new MessageDialog("Are you sure you want to start a new game? Progress will be lost for this game");
+            newGameDialog.Commands.Add(new UICommand(
+                "Start New Game",
+                new UICommandInvokedHandler(this.newGameCommandInvokedHandler)));
+
+            newGameDialog.Commands.Add(new UICommand(
+                "Cancel",
+                new UICommandInvokedHandler(this.newGameCommandInvokedHandler)));
+
+            await newGameDialog.ShowAsync();
+        }
+
+        private void newGameCommandInvokedHandler(IUICommand command)
+        {
+            if(command.Label != "Cancel")
+            {
+                numberOfUncoveredMines = numberOfMines;
+                mineDisplay.Text = numberOfUncoveredMines.ToString();
+
+                gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
+
+                gameOver = false;
+                emojiImage.Source = new BitmapImage(new Uri("ms-appx:///images/smileEmoji.png", UriKind.Absolute));
+
+                numberOfSeconds = 0;
+                timeDisplay.Text = numberOfSeconds.ToString();
+
+                FillGameBoard();
+                GenerateGameBoard();
+                saveBoardState();
+            }
         }
     }
 }

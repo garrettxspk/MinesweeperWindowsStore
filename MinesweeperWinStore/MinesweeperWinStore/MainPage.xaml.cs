@@ -205,5 +205,9 @@ namespace MinesweeperWinStore
 
         #endregion
 
+        private void AppBarHelpButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(AboutPage));
+        }
     }
 }

@@ -65,4 +65,14 @@
             <Button x:Name="viewHighScoresBtn" Content="High Scores" HorizontalAlignment="Center" Width="130" Margin="0,50,0,0"/>
         </StackPanel>
     </Grid>
+    <Page.BottomAppBar>
+        <AppBar Name="bottomAppBar" IsSticky="True" IsOpen="True">
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <AppBarButton Icon="Help" Label="Help"
+                        Click="AppBarHelpButton_Click" HorizontalAlignment="Right" />
+                </StackPanel>
+            </Grid>
+        </AppBar>
+    </Page.BottomAppBar>
 </Page>

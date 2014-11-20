@@ -12,7 +12,7 @@
 
     <Page.Resources>
         <!-- TODO: Delete this line if the key AppName is declared in App.xaml -->
-        <x:String x:Key="PageName">About Minesweeper</x:String>
+        <x:String x:Key="PageName">About Minesweeper v 1.0</x:String>
     </Page.Resources>
 
     <!--
@@ -46,5 +46,16 @@
             <TextBlock x:Name="pageTitle" Text="{StaticResource PageName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
         </Grid>
+        <TextBlock HorizontalAlignment="Right" Grid.Row="1" TextWrapping="Wrap" Text="Minesweeper was developed by Sam Hipp and Garrett Kelley" FontSize="20" VerticalAlignment="Bottom" Width="347" Margin="0,0,0 15"/>
+        <TextBlock HorizontalAlignment="Left" Margin="30,30,0,0" Grid.Row="1" TextWrapping="Wrap" Text="How to Play:" VerticalAlignment="Top" FontSize="32"/>
+        <TextBlock HorizontalAlignment="Left" Margin="70,73,0,0" Grid.Row="1" TextWrapping="Wrap" Text="1.  Click/Tap a cell to dig it up and reveal what is beneath." VerticalAlignment="Top" FontSize="20" MaxWidth="500"/>
+        <TextBlock HorizontalAlignment="Left" Margin="70,121,0,0" Grid.Row="1" TextWrapping="Wrap" Text="2.  If a cell contains a number, there are that many mines in the 8 cells surrounding it." VerticalAlignment="Top" FontSize="20" MaxWidth="500"/>
+        <TextBlock HorizontalAlignment="Left" Margin="69,174,0,0" Grid.Row="1" TextWrapping="Wrap" Text="3.  But beware! If the cell you dig up contains a mine, it's game over!" VerticalAlignment="Top" FontSize="20" MaxWidth="500"/>
+        <TextBlock HorizontalAlignment="Left" Margin="69,227,0,0" Grid.Row="1" TextWrapping="Wrap" Text="4.  Right click/Long tap a cell once to place a flag. Place a flag on a cell if you are sure there is a mine there. (Flags will prevent you from digging up that cell)" VerticalAlignment="Top" FontSize="20" MaxWidth="500"/>
+        <TextBlock HorizontalAlignment="Left" Margin="69,304,0,0" Grid.Row="1" TextWrapping="Wrap" Text="5.  Right click/Long tap again to place a ? on a cell. Place a ? on a mine if you think there might be a mine there. (Mines will also prevent you from digging up a cell)" VerticalAlignment="Top" FontSize="20" MaxWidth="500"/>
+        <TextBlock HorizontalAlignment="Left" Margin="69,381,0,0" Grid.Row="1" TextWrapping="Wrap" Text="6.  Right click/Long tap again to change the cell back to normal (this can also be done from the bar at the bottom of the screen)" VerticalAlignment="Top" FontSize="20" MaxWidth="500"/>
+        <TextBlock HorizontalAlignment="Left" Margin="70,458,0,0" Grid.Row="1" TextWrapping="Wrap" Text="7.  Once all the mines have been flagged, and all other cells have been dug up, you've won the game! Congratulations!" VerticalAlignment="Top" FontSize="20" MaxWidth="500"/>
+        <Image HorizontalAlignment="Right" Margin="0,30,50,0" Grid.Row="1" VerticalAlignment="Top" Source="ms-appx:///images/aboutPage.jpg" Height="480" Width="640"/>
+
     </Grid>
 </Page>
