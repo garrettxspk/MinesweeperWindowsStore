@@ -45,6 +45,8 @@ namespace MinesweeperWinStore
         private const char NO_NEIGHBORS = '0';
         private const int IMAGE_SIZE = 66;
 
+        string currentEmojiSource;
+
         private bool gameOver;
         private int gameBoardWidth;
         private int gameBoardHeight;
@@ -80,6 +82,7 @@ namespace MinesweeperWinStore
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
+            currentEmojiSource = "ms-appx:///images/smileEmoji.png";
             this.navigationHelper.SaveState += navigationHelper_SaveState;
             timer = new DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 1);
@@ -351,6 +354,7 @@ namespace MinesweeperWinStore
                 newSource = "ms-appx:///images/mineClicked.jpg";
                 if(isSoundOn) bombSound.Play();
                 emojiImage.Source = new BitmapImage(new Uri("ms-appx:///images/frownEmoji.jpg", UriKind.Absolute));
+                currentEmojiSource = "ms-appx:///images/frownEmoji.jpg";
                 gameOver = true;
                 revealMines();
                 timer.Stop();
@@ -376,6 +380,17 @@ namespace MinesweeperWinStore
                                 revealCell(rowToCheck, colToCheck);
                             }
                     }
+            }
+
+            if (checkForWin())
+            {
+                emojiImage.Source = new BitmapImage(new Uri("ms-appx:///images/sunglassesEmoji.png", UriKind.Absolute));
+                currentEmojiSource = "ms-appx:///images/sunglassesEmoji.png";
+                gameOver = true;
+                numberOfUncoveredMines = 0;
+                setMineDisplay();
+                flagMines();
+                timer.Stop();
             }
         }
 
@@ -406,8 +421,8 @@ namespace MinesweeperWinStore
                 numberOfFlagsSet = Convert.ToInt32(localSettings.Values["numberOfFlags"].ToString());
                 numberOfUncoveredMines = numberOfMines - numberOfFlagsSet;
                 mineDisplay.Text = numberOfUncoveredMines.ToString();
-                //string uri = localSettings.Values["emojiPicture"].ToString();
-                //emojiImage.Source = new BitmapImage(new Uri(uri, UriKind.Absolute));
+                string uri = localSettings.Values["emojiPicture"].ToString();
+                emojiImage.Source = new BitmapImage(new Uri(uri, UriKind.Absolute));
                 numberOfSeconds = Convert.ToInt32(localSettings.Values["time"].ToString());
                 timeDisplay.Text = numberOfSeconds.ToString();
                 if (localSettings.Values.ContainsKey("gameOver"))
@@ -464,7 +479,7 @@ namespace MinesweeperWinStore
             localSettings.Values["numberOfFlags"] = numberOfFlagsSet;
             localSettings.Values["gameOver"] = gameOver;
             localSettings.Values["time"] = numberOfSeconds;
-            localSettings.Values["emojiPicture"] = emojiImage.Source.ToString();
+            localSettings.Values["emojiPicture"] = currentEmojiSource;
         }
 
         private string underlyingBoardToString()
@@ -597,6 +612,7 @@ namespace MinesweeperWinStore
                         {
                             Image thisCellImage = gameBoardGrid.Children[r * gameBoardWidth + c] as Image;
                             (thisCellImage).Source = new BitmapImage(new Uri(isAMineSource, UriKind.Absolute));
+                            gameBoard[r, c].State = Cell.CellState.Revealed;
                         }
                     }
                     else
@@ -605,6 +621,25 @@ namespace MinesweeperWinStore
                         {
                             Image thisCellImage = gameBoardGrid.Children[r * gameBoardWidth + c] as Image;
                             (thisCellImage).Source = new BitmapImage(new Uri(isNotAMineSource, UriKind.Absolute));
+                            gameBoard[r, c].State = Cell.CellState.Revealed;
+                        }
+                    }
+                }
+        }
+
+        private void flagMines()
+        {
+            string source = "ms-appx:///images/flagged.jpg";
+            for (int r = 0; r < gameBoardHeight; r++)
+                for (int c = 0; c < gameBoardWidth; c++)
+                {
+                    if (gameBoard[r, c].CellType == MINE)
+                    {
+                        if (gameBoard[r, c].State != Cell.CellState.Flagged)
+                        {
+                            Image thisCellImage = gameBoardGrid.Children[r * gameBoardWidth + c] as Image;
+                            (thisCellImage).Source = new BitmapImage(new Uri(source, UriKind.Absolute));
+                            gameBoard[r, c].State = Cell.CellState.Flagged;
                         }
                     }
                 }
@@ -644,6 +679,19 @@ namespace MinesweeperWinStore
                 GenerateGameBoard();
                 saveBoardState();
             }
+        }
+
+        private bool checkForWin()
+        {
+            bool hasWon = true;
+            for (int r = 0; r < gameBoardHeight; r++)
+                for (int c = 0; c < gameBoardWidth; c++)
+                {
+                    if (gameBoard[r, c].State != Cell.CellState.Revealed)
+                        if (gameBoard[r, c].CellType != MINE)
+                            hasWon = false;
+                }
+            return hasWon;
         }
     }
 }

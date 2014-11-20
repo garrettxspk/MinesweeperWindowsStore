@@ -1,4 +1,2 @@
 -Store high scores. (Sam)
 -Make HighScoresPage. (Sam)
--End game when won. (Sam)
-	-Notify that the game is lost/won
