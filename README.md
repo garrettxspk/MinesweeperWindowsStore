@@ -14,3 +14,20 @@ track of the time spent playing.
 
 No known bugs exist.
 
+Most coding was done in paired programming, 
+however the division of work that was not is as follows:
+
+Garrett - 
+	Save board state 
+	Sound effects
+	End game when all mines marked
+	
+Sam -
+	Visual layout of mine counter and timer
+	High scores (not implemented)
+	
+Final division of work load
+
+Garrett - 60%
+Sam - 40%
+	
