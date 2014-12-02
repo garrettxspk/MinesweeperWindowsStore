@@ -226,6 +226,10 @@ namespace MinesweeperWinStore
 
         private void PrintGameBoard()
         {
+            if (gameBoardGrid.Children.Count > 0)
+            {
+                gameBoardGrid.Children.Clear();
+            }
             for (int r = 0; r < gameBoardHeight; r++)
                 for (int c = 0; c < gameBoardWidth; c++)
                 {
@@ -669,10 +673,11 @@ namespace MinesweeperWinStore
                 numberOfFlagsSet = 0;
                 mineDisplay.Text = numberOfUncoveredMines.ToString();
 
-                //gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
+                gameBoard = new Cell[gameBoardHeight, gameBoardWidth];
 
                 gameOver = false;
                 emojiImage.Source = new BitmapImage(new Uri("ms-appx:///images/smileEmoji.png", UriKind.Absolute));
+                currentEmojiSource = "ms-appx:///images/smileEmoji.png";
 
                 numberOfSeconds = 0;
                 timeDisplay.Text = numberOfSeconds.ToString();
