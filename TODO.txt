@@ -1,2 +1,2 @@
--Store high scores. (Sam)
--Make HighScoresPage. (Sam)
+test, polish, etc.
+no major tasks left.
