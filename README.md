@@ -24,10 +24,10 @@ Garrett -
 	
 Sam -
 	Visual layout of mine counter and timer
-	High scores (not implemented)
+	High scores
 	
 Final division of work load
 
-Garrett - 60%
-Sam - 40%
+Garrett - 55%
+Sam - 45%
 	
