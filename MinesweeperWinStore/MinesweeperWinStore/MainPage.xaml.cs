@@ -26,6 +26,9 @@ namespace MinesweeperWinStore
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
+        private Windows.Storage.ApplicationDataContainer localSettings =
+                Windows.Storage.ApplicationData.Current.LocalSettings;
+
         bool newGame = false;
 
         /// <summary>
@@ -55,6 +58,47 @@ namespace MinesweeperWinStore
             heightComboBox.SelectedValue = 8;
             widthComboBox.SelectedValue = 8;
             minesComboBox.SelectedValue = 10;
+
+            if (localSettings.Values["beginner1Name"] == null)
+            {
+                string diff;
+                for (int i = 0; i < 3; i++)
+                {
+                    if (i == 0)
+                    {
+                        diff = "beginner";
+                    }
+                    else if (i == 1)
+                    {
+                        diff = "intermediate";
+                    }
+                    else
+                    {
+                        diff = "expert";
+                    }
+                    localSettings.Values[diff + "1Name"] = "Billy";
+                    localSettings.Values[diff + "2Name"] = "Sally";
+                    localSettings.Values[diff + "3Name"] = "Margo";
+                    localSettings.Values[diff + "4Name"] = "Timmy";
+                    localSettings.Values[diff + "5Name"] = "George";
+                    localSettings.Values[diff + "6Name"] = "Gertrude";
+                    localSettings.Values[diff + "7Name"] = "Albert";
+                    localSettings.Values[diff + "8Name"] = "Tabitha";
+                    localSettings.Values[diff + "9Name"] = "Elise";
+                    localSettings.Values[diff + "10Name"] = "Bill";
+
+                    localSettings.Values[diff + "1Time"] = ((i + 1) * 10);
+                    localSettings.Values[diff + "2Time"] = ((i + 1) * 20);
+                    localSettings.Values[diff + "3Time"] = ((i + 1) * 30);
+                    localSettings.Values[diff + "4Time"] = ((i + 1) * 40);
+                    localSettings.Values[diff + "5Time"] = ((i + 1) * 50);
+                    localSettings.Values[diff + "6Time"] = ((i + 1) * 60);
+                    localSettings.Values[diff + "7Time"] = ((i + 1) * 70);
+                    localSettings.Values[diff + "8Time"] = ((i + 1) * 80);
+                    localSettings.Values[diff + "9Time"] = ((i + 1) * 90);
+                    localSettings.Values[diff + "10Time"] = ((i + 1) * 100);
+                }
+            }
         }
 
         private void startGameBtn_Click(object sender, RoutedEventArgs e)
@@ -208,6 +252,11 @@ namespace MinesweeperWinStore
         private void AppBarHelpButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(AboutPage));
+        }
+
+        private void viewHighScoresBtn_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(HighScorePage));
         }
     }
 }

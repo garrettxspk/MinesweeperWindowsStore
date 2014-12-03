@@ -8,27 +8,28 @@ namespace MinesweeperWinStore
 {
     class HighScore
     {
-        private string initials;
+        private string diff;
 
-        public string Initials
+        public string Difficulty
         {
-            get { return initials; }
-            set 
-            { 
-                if(value.Length > 3)
-                {
-                    initials = value.Substring(0, 3);
-                }
-                initials = initials.ToUpper();
-            }
+            get { return diff; }
+            set { diff = value; }
         }
 
-        private int score;
+        private int time;
 
-        public int Score
+        public int Time
         {
-            get { return score; }
-            set { score = value; }
+            get { return time; }
+            set { time = value; }
+        }
+
+        private int place;
+
+        public int Place
+        {
+            get { return place; }
+            set { place = value; }
         }
     }
 }

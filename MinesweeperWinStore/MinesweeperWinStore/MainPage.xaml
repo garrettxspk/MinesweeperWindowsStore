@@ -62,7 +62,7 @@
                 </ComboBox>
             </StackPanel>
             <Button x:Name="startGameBtn" Content="Start Game" HorizontalAlignment="Center" Width="130" Margin="0,50,0,0" Click="startGameBtn_Click"/>
-            <Button x:Name="viewHighScoresBtn" Content="High Scores" HorizontalAlignment="Center" Width="130" Margin="0,50,0,0"/>
+            <Button x:Name="viewHighScoresBtn" Content="High Scores" HorizontalAlignment="Center" Width="130" Margin="0,50,0,0" Tapped="viewHighScoresBtn_Tapped"/>
         </StackPanel>
     </Grid>
     <Page.BottomAppBar>

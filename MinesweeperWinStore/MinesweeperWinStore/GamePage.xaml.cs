@@ -26,10 +26,14 @@ namespace MinesweeperWinStore
     /// </summary>
     public sealed partial class GamePage : Page
     {
+        private bool gameComplete;
 
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
-        
+
+        private Windows.Storage.ApplicationDataContainer localSettings =
+                Windows.Storage.ApplicationData.Current.LocalSettings;
+
         private BoardConfiguration boardConfig;
         private bool newGame = true;
         private enum ClickType
@@ -342,7 +346,7 @@ namespace MinesweeperWinStore
             mineDisplay.Text = numCovered.ToString();
         }
 
-        private void revealCell(int row, int col)
+        private async void revealCell(int row, int col)
         {
             string newSource;
             if (gameBoard[row, col].CellType != MINE)
@@ -391,6 +395,42 @@ namespace MinesweeperWinStore
                 mineDisplay.Text = "0";
                 flagMines();
                 timer.Stop();
+
+                HighScore highScore = getHighScorePlace(gameBoardWidth, gameBoardHeight, numberOfSeconds);
+                localSettings.Values.Remove("underlyingBoard");
+                if (highScore.Place != 0)
+                {
+                    string place = "";
+                    switch (highScore.Place)
+                    {
+                        case 1: place = "first";
+                            break;
+                        case 2: place = "second";
+                            break;
+                        case 3: place = "third";
+                            break;
+                        case 4: place = "fourth";
+                            break;
+                        case 5: place = "fifth";
+                            break;
+                        case 6: place = "sixth";
+                            break;
+                        case 7: place = "seventh";
+                            break;
+                        case 8: place = "eighth";
+                            break;
+                        case 9: place = "ninth";
+                            break;
+                        case 10: place = "tenth";
+                            break;
+                        default:
+                            break;
+                    }
+                    MessageDialog message = new MessageDialog("Congratulations, you are now " + place + " on the High Scores!  You will be sent to the High Scores page to give your name.", "New High Score!");
+                    await message.ShowAsync();
+                    //direct player to high score page where they will enter their name in the high score list
+                    this.Frame.Navigate(typeof(HighScorePage), highScore);
+                }
             }
         }
 
@@ -465,13 +505,20 @@ namespace MinesweeperWinStore
         /// serializable state.</param>
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            saveBoardState();
+            if (gameOver == true)
+            {
+                localSettings.Values.Remove("underlyingBoard");
+            }
+            else
+            {
+                saveBoardState();
+            }
+            
         }
 
         private void saveBoardState()
         {
-            Windows.Storage.ApplicationDataContainer localSettings =
-                Windows.Storage.ApplicationData.Current.LocalSettings;
+            
 
             localSettings.Values["underlyingBoard"] = underlyingBoardToString();
             localSettings.Values["graphicalBoard"] = graphicalBoardToString();
@@ -694,6 +741,45 @@ namespace MinesweeperWinStore
                             hasWon = false;
                 }
             return hasWon;
+        }
+
+        //previously called SaveHighScore.  Will no longer save the high score.  That will be done elsewhere.
+        private HighScore getHighScorePlace(int w, int h, int time)
+        {
+            string diff = ""; 
+            int place = 0;
+            if (w == 8 && h == 8)
+            {
+                diff = "beginner";
+            }
+            else if (w == 16 && h == 16)
+            {
+                diff = "intermediate";
+            }
+            else if (w == 30 && h == 16)
+            {
+                diff = "expert";
+            }
+            else
+            {
+                diff = "custom";
+            }
+
+            bool done = false;
+            for (int i = 1; i < 10 && !done; i++)
+            {
+                //TODO: Move this elsewhere to avoid inconsistent data (save time when we get the player name)
+                if (Int32.Parse(localSettings.Values[diff + i + "Time"].ToString()) > time)
+	            {
+                    place = i;               
+                    done = true;
+	            }
+            }
+            HighScore highScore = new HighScore();
+            highScore.Difficulty = diff;
+            highScore.Time = time;
+            highScore.Place = place;
+            return highScore;
         }
     }
 }
